@@ -9,5 +9,5 @@ export const PostAuthor = ({ authorId }) => {
 };
 
 PostAuthor.propTypes = {
-  authorId: PropTypes.string,
+  authorId: PropTypes.number,
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { postAdded } from './postSlice';
+import { addNewPost } from './postSlice';
 import { selectAllUsers } from '../users/usersSlice';
 
 export const AddPostForm = () => {
@@ -9,20 +9,31 @@ export const AddPostForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [authorId, setAuthorId] = useState('');
+  const [addRequestStatus, setRequestStatus] = useState('idle');
+
   const allAuthors = useSelector(selectAllUsers);
 
   const handleTitle = (e) => setTitle(e.target.value);
   const handleContent = (e) => setContent(e.target.value);
   const authorChange = (e) => setAuthorId(e.target.value);
+  const canSave = [title, content, authorId].every(Boolean) && addRequestStatus === 'idle';
+
   const onSavePostClicked = () => {
-    if (title && content && authorId) {
-      dispatch(postAdded(title, content, authorId));
-      setTitle('');
-      setContent('');
+    if (canSave) {
+      try {
+        setRequestStatus('pending');
+        dispatch(addNewPost({ title, body: content, authorId })).unwrap();
+
+        setTitle('');
+        setContent('');
+        setAuthorId('');
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setRequestStatus('idle');
+      }
     }
   };
-
-  const canSave = title && content && authorId;
 
   const authorOptions = () =>
     allAuthors.map((user) => (
